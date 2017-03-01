@@ -8,7 +8,7 @@
     "email": "will.vaughn@carbonlighthouse.com"
   },
   "license": "MIT",
-  "main": "lib/foo.js",
+  "main": "lib/svcClient.js",
   "engines": {
     "node": ">=6"
   },
