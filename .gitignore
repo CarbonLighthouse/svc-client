@@ -37,6 +37,7 @@ jspm_packages
 # IDE and OS
 .DS_Store
 .idea
+scratch
 
 # App config
 .npmrc
