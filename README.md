@@ -98,3 +98,57 @@ todoSvc('listTodos').then(todos => {
   console.log(todos); // [{}...]
 })
 ```
+
+## API
+
+### `makeSvcClient` :: (`baseUrl<String>`, `methods<Object>`) -> (`methodName<String>`, `params<Object>`) -> `Promise`
+
+Setup Function:
+
+**baseUrl**: `<String>`
+
+Precedes all endpoint declarations when making service calls
+
+**methods**: `<Object>`
+
+Key value object of methodName => methodDefinition (see below)
+
+Service Call Function:
+
+**methodName**: `<String>`
+
+The name of the service method to call
+
+**params**: `<Object>`
+
+Object of params used in templating endpoints and making Request `init` definitions.
+
+
+
+### Defining API Methods/Endpoints via configuration
+
+**endpoint** *Required* `<String>`:
+
+A string or template string to define what URL of the service is called. The template string is templated by the `params` object passed in a service call.
+
+**makeInit** `<Function>` :: `params<Object>` -> `init<Object>`
+
+A function which takes the `params` passed in a service call and returns
+a `init` object as defined by the [Fetch API Request Docs](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request).
+This allows creation of custom request methods, bodies, headers, or anything else the Fetch API is capable of.
+If the `makeInit` function is absent the request is assumed to be `GET` by default.
+
+**responseExtractor** `<Function>` :: `Response` -> `Promise`
+
+Needs more documentation, there is a `defaultExtractor` that is used. See `svc-client/fetchUtil` and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+for more information.
+
+**responseFormatter** `<Function>` :: `*` -> `*`
+
+Optional function which can be provided to do extra formatting work on the data returned
+by a service call. e.g. convert snake_case keys of data to camelCase.
+
+**errorFormatter** `<Function>` :: `Response` -> `Promise || Response`
+
+Needs more documentation, there is a `handleErrors` defautl that is used. See `svc-client/fetchUtil` and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+for more information.
