@@ -1,33 +1,12 @@
 const assert = require('assert');
 const fetchMock = require('fetch-mock');
 const withData = require('leche').withData;
-const endpointCase = require('./endpoint.case');
 const makeInitCase = require('./makeInit.case');
 const makeSvcClient = require('../lib/makeSvcClient');
 
 /* eslint-disable max-nested-callbacks */
 describe('svcClient', () => {
   afterEach(() => fetchMock.restore());
-
-  describe('endpoint config', () => {
-    withData(endpointCase, (baseUrl, methodConfig, params, compiledEndpoint) => {
-      it('should successfully make request', () => {
-        const apiMethods = {testMethod: methodConfig};
-        const client = makeSvcClient(baseUrl, apiMethods);
-
-        fetchMock.mock(`${baseUrl}${compiledEndpoint}`, {
-          body: '{"foo": "bar"}',
-          headers: {'Content-Type': 'application/json'}
-        });
-
-        return client('testMethod', params)
-          .then(actual => {
-            const expected = {foo: 'bar'};
-            assert.deepEqual(actual, expected, 'successful response');
-          });
-      });
-    });
-  });
 
   describe('makeInit config', () => {
     withData(makeInitCase, (baseUrl, methodConfig, params, matcher) => {
@@ -40,7 +19,7 @@ describe('svcClient', () => {
           headers: {'Content-Type': 'application/json'}
         });
 
-        return client('testMethod', params)
+        return client.testMethod(params)
           .then(actual => {
             const expected = {foo: 'bar'};
             assert.deepEqual(actual, expected, 'successful response');
