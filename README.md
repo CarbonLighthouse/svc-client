@@ -44,64 +44,69 @@ There are further instructions on the fetch project pages.
 Let's assume we have a web service running on `localhost:8000` which serves todos managed by a database.
 It's enpoints are:
 
-`GET /todos/`
-Lists Todos => `[{"id": string, "text": string, "isDone": boolean}...]`
+List Todos:
 
-`GET /todos/:todoId`
-"Show a single todo by it's id" => `{"id": string, "text": string, "isDone": boolean}`
+`GET /todos/` => `[{"id": string, "text": string, "isDone": boolean}...]`
 
-`POST /todos/`
-POST Body: `{"text": string}`
-"Create a new todo" => `{"id": string}`
+Show Todo:
+
+`GET /todos/:todoId` => `{"id": string, "text": string, "isDone": boolean}`
+
+Create Todo:
+
+Request Body: `{"text": string}`
+
+`POST /todos/` => `{"id": string}`
+
+Healthcheck:
+
+`GET /healthcheck` => `{"status": "ok"`
 
 ```js
 const makeSvcClient = require('svc-client').makeSvcClient;
 
 const baseUrl = 'http://localhost:8000';
 
-// Defines configuration of all the endpoints available in the todos service
-const endpointConfig = {
-  // Simple GET requires nothing more than an endpoint
-  listTodos: {endpoint: '/todos/'}
-
-  // Parameterized endpoints use EJS templates via lodash _.template
-  showTodo: {endpoint: '/todos/<%- todoId %>'
-
-  // Defining the makeInit function allows you to make request objects
-  // as defined via the Fetch API Request documentation
-  createTodo: {
-    endpoint: '/todos/',
-    makeInit(params) {
-      return {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text: params.text})
-      };
+const svcDefinition = {
+  healthcheck: {endpoint: '/healthcheck'},
+  todos: {
+    list: {endpoint: '/todos/'},
+    show: {endpoint: '/todos/<%- todoId %>'},
+    create: {
+      endpoint: '/todos/',
+      makeInit(params) {
+        return {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: params.text})
+        };
+      }
     }
   }
 };
 
-const todoSvc = makeSvcClient(baseUrl, endpointConfig);
+const client = makeSvcClient(baseUrl, svcDefinition);
 
-// Making service calls
+client
+  .healthcheck()
+  .then(res => console.log(res.status)) // "ok"
 
-// Create a todo, and then use the response to make a 'showTodo' call
-// to retrieve the full data for that todo.
-todoSvc('createTodo', {text: 'write documentation'})
-    .then(({id}) => {
-        return todoSvc('showTodo', {todoId: id});
-    })
-    .then(console.log); // {id: string, text: 'write documentation', isDone: false}
 
-todoSvc('listTodos').then(todos => {
-  // do something with todos data returned from the server.
-  console.log(todos); // [{}...]
-})
+// Create a todo, and then use the response to call
+// show to get all the information about that todo
+// end by calling to get the entire list of stored todos
+client
+  .todos
+  .create({text: 'write documentation'})
+  .then((res) => client.todos.show({todoId: res.id}))
+  .then((res) => console.log(res)) // {id: "1", text: 'write documentation', isDone: false}
+  .then(() => client.todos.list())
+  .then(console.log); // [{id: "1", text: 'write documentation', isDone: false}, ...]
 ```
 
-## API
+## Service Client Factory
 
-### `makeSvcClient` :: (`baseUrl<String>`, `methods<Object>`) -> (`methodName<String>`, `params<Object>`) -> `Promise`
+### `makeSvcClient` :: (`baseUrl<String>`, `svcDefinition<Object>`) -> `client<Object>`
 
 Setup Function:
 
@@ -109,23 +114,18 @@ Setup Function:
 
 Precedes all endpoint declarations when making service calls
 
-**methods**: `<Object>`
+**svcDefinition**: `<Object>`
 
-Key value object of methodName => methodDefinition (see below)
+Object which defines your Service Endpoints. See usage example above, and documentation below
+for more information on defining your service with a service definition.
 
-Service Call Function:
+## Service Definition
 
-**methodName**: `<String>`
+A service definition is an object which defines endpoints that your client should make calls to.
+You may group like endpoints one level under a key. See the usage example to see how "todos" endpoints
+are grouped under `client.todos`.
 
-The name of the service method to call
-
-**params**: `<Object>`
-
-Object of params used in templating endpoints and making Request `init` definitions.
-
-
-
-### Defining API Methods/Endpoints via configuration
+Each service definition can have the following properties.
 
 **endpoint** *Required* `<String>`:
 
