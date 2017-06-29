@@ -106,9 +106,7 @@ client
 
 ## Service Client Factory
 
-### `makeSvcClient` :: (`baseUrl<String>`, `svcDefinition<Object>`) -> `client<Object>`
-
-Setup Function:
+*`makeSvcClient` :: (`baseUrl<String>`, `svcDefinition<Object>`) -> `client<Object>`*
 
 **baseUrl**: `<String>`
 
@@ -125,7 +123,7 @@ A service definition is an object which defines endpoints that your client shoul
 You may group like endpoints one level under a key. See the usage example to see how "todos" endpoints
 are grouped under `client.todos`.
 
-Each service definition can have the following properties.
+Each enpoint in a service definition can have the following properties.
 
 **endpoint** *Required* `<String>`:
 
