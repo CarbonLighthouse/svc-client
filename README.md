@@ -60,7 +60,7 @@ Request Body: `{"text": string}`
 
 Healthcheck:
 
-`GET /healthcheck` => `{"status": "ok"`
+`GET /healthcheck` => `{"status": "ok"}`
 
 ```js
 const makeSvcClient = require('svc-client').makeSvcClient;
@@ -78,7 +78,7 @@ const svcDefinition = {
         return {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({text: params.text})
+          body: {text: params.text}
         };
       }
     }
@@ -99,9 +99,9 @@ client
   .todos
   .create({text: 'write documentation'})
   .then((res) => client.todos.show({todoId: res.id}))
-  .then((res) => console.log(res)) // {id: "1", text: 'write documentation', isDone: false}
+  .then(todo => console.log(todo)) // {id: "1", text: 'write documentation', isDone: false}
   .then(() => client.todos.list())
-  .then(console.log); // [{id: "1", text: 'write documentation', isDone: false}, ...]
+  .then(todos => console.log(todos); // [{id: "1", text: 'write documentation', isDone: false}, ...]
 ```
 
 ## Service Client Factory
