@@ -1,6 +1,6 @@
 {
   "name": "svc-client",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Declarative web service client framework on top of the Fetch API",
   "repository": "CarbonLighthouse/svc-client",
   "author": {
